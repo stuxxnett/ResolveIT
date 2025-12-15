@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Dashboard - ResolveIT</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-6">
+
+<div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold">User Dashboard</h1>
+    <button onclick="logout()" class="bg-red-600 text-white px-4 py-2 rounded">Logout</button>
+</div>
+
+<!-- STATS CARDS -->
+<div class="grid grid-cols-3 gap-4 mb-6">
+    <div class="bg-white p-4 rounded shadow text-center">
+        <p class="text-gray-500">Total</p>
+        <h2 id="totalCount" class="text-3xl font-bold">0</h2>
+    </div>
+    <div class="bg-white p-4 rounded shadow text-center">
+        <p class="text-gray-500">Pending</p>
+        <h2 id="pendingCount" class="text-3xl font-bold text-red-600">0</h2>
+    </div>
+    <div class="bg-white p-4 rounded shadow text-center">
+        <p class="text-gray-500">Resolved</p>
+        <h2 id="resolvedCount" class="text-3xl font-bold text-green-600">0</h2>
+    </div>
+</div>
+
+<!-- SUBMIT COMPLAINT -->
+<div class="bg-white p-5 rounded shadow mb-6">
+    <h2 class="text-xl font-bold mb-3">Submit New Complaint</h2>
+
+    <input id="title" placeholder="Complaint Title" class="border p-2 w-full mb-2 rounded" />
+    <textarea id="desc" placeholder="Complaint Description" class="border p-2 w-full mb-2 rounded"></textarea>
+
+    <button onclick="submitComplaint()" class="bg-blue-600 text-white px-4 py-2 rounded">Submit Complaint</button>
+
+    <p id="errorMsg" class="text-red-600 mt-2"></p>
+</div>
+
+<!-- COMPLAINT TABLE -->
+<div class="bg-white rounded shadow p-4">
+    <table class="w-full text-left">
+        <thead>
+        <tr class="border-b font-bold">
+            <th class="p-2">Title</th>
+            <th class="p-2">Description</th>
+            <th class="p-2">Status</th>
+        </tr>
+        </thead>
+        <tbody id="complaintTable"></tbody>
+    </table>
+</div>
+
+<script>
+    const user = JSON.parse(localStorage.getItem('user'));
+
+    if (!user) {
+        window.location.href = "login.html";
+    }
+
+    // ===================== LOAD USER COMPLAINTS =====================
+    function loadComplaints() {
+        fetch(`http://localhost:8080/api/complaints/user/${user.id}`, {
+            headers: {
+                "Authorization": "Bearer " + user.token
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            const table = document.getElementById("complaintTable");
+            table.innerHTML = "";
+
+            let total = data.length;
+            let pending = 0;
+            let resolved = 0;
+
+            data.forEach(c => {
+                if (c.status === "RESOLVED") resolved++;
+                else pending++;
+
+                let color = c.status === "RESOLVED" ? "text-green-600" : "text-red-600";
+
+                table.innerHTML += `
+                    <tr class="border-b">
+                        <td class="p-2">${c.title}</td>
+                        <td class="p-2">${c.description}</td>
+                        <td class="p-2 font-bold ${color}">${c.status}</td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById("totalCount").innerText = total;
+            document.getElementById("pendingCount").innerText = pending;
+            document.getElementById("resolvedCount").innerText = resolved;
+        });
+    }
+
+    // ===================== SUBMIT COMPLAINT =====================
+    function submitComplaint() {
+        let title = document.getElementById("title").value.trim();
+        let desc = document.getElementById("desc").value.trim();
+        let errorMsg = document.getElementById("errorMsg");
+
+        // Prevent EMPTY complaint
+        if (title.length === 0 || desc.length === 0) {
+            errorMsg.innerText = "Title & Description cannot be empty!";
+            return;
+        }
+
+        errorMsg.innerText = "";
+
+        fetch("http://localhost:8080/api/complaints", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + user.token
+            },
+            body: JSON.stringify({
+                userId: user.id,
+                title: title,
+                description: desc
+            })
+        })
+        .then(() => {
+            document.getElementById("title").value = "";
+            document.getElementById("desc").value = "";
+            loadComplaints();
+        });
+    }
+
+    // ===================== LOGOUT =====================
+    function logout() {
+        localStorage.clear();
+        window.location.href = "login.html";
+    }
+
+    loadComplaints();
+</script>
+
+</body>
+</html>

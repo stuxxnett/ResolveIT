@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard - ResolveIT</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-6">
+
+<div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold">Admin Dashboard</h1>
+    <button onclick="logout()" class="bg-red-600 text-white px-4 py-2 rounded">Logout</button>
+</div>
+
+<!-- STATS -->
+<div class="grid grid-cols-3 gap-4 mb-6">
+    <div class="bg-white p-4 rounded shadow text-center">
+        <p class="text-gray-500">Total Complaints</p>
+        <h2 id="totalAdmin" class="text-3xl font-bold">0</h2>
+    </div>
+    <div class="bg-white p-4 rounded shadow text-center">
+        <p class="text-gray-500">Pending</p>
+        <h2 id="pendingAdmin" class="text-3xl font-bold text-red-600">0</h2>
+    </div>
+    <div class="bg-white p-4 rounded shadow text-center">
+        <p class="text-gray-500">Resolved</p>
+        <h2 id="resolvedAdmin" class="text-3xl font-bold text-green-600">0</h2>
+    </div>
+</div>
+
+<!-- COMPLAINT LIST -->
+<div class="bg-white rounded shadow p-4">
+    <table class="w-full text-left">
+        <thead>
+        <tr class="border-b font-bold">
+            <th class="p-2">Title</th>
+            <th class="p-2">Description</th>
+            <th class="p-2">Status</th>
+            <th class="p-2">Action</th>
+        </tr>
+        </thead>
+        <tbody id="adminTable"></tbody>
+    </table>
+</div>
+
+<script>
+    const admin = JSON.parse(localStorage.getItem("user"));
+
+    // Redirect if not logged in
+    if (!admin) {
+        window.location.href = "login.html";
+    }
+
+    // ===================== LOAD ALL COMPLAINTS =====================
+    function loadAllComplaints() {
+        fetch("http://localhost:8080/api/complaints", {
+            headers: {
+                "Authorization": "Bearer " + admin.token
+            }
+        })
+        .then(res => {
+            if (res.status === 401) {
+                alert("Session expired. Please login again.");
+                logout();
+            }
+            return res.json();
+        })
+        .then(data => {
+
+            const table = document.getElementById("adminTable");
+            table.innerHTML = "";
+
+            let total = data.length;
+            let pending = 0;
+            let resolved = 0;
+
+            data.forEach(c => {
+                if (c.status === "RESOLVED") resolved++;
+                else pending++;
+
+                let color = c.status === "RESOLVED" ? "text-green-600" : "text-red-600";
+
+                table.innerHTML += `
+                    <tr class="border-b">
+                        <td class="p-2">${c.title}</td>
+                        <td class="p-2">${c.description}</td>
+                        <td class="p-2 font-bold ${color}">${c.status}</td>
+                        <td class="p-2">
+                            ${c.status !== "RESOLVED"
+                                ? `<button onclick="resolveComplaint(${c.id})"
+                                    class="bg-blue-600 text-white px-3 py-1 rounded">
+                                   Resolve
+                                   </button>`
+                                : `<span class="text-gray-400 italic">Completed</span>`
+                            }
+                        </td>
+                    </tr>`;
+            });
+
+            document.getElementById("totalAdmin").innerText = total;
+            document.getElementById("pendingAdmin").innerText = pending;
+            document.getElementById("resolvedAdmin").innerText = resolved;
+        });
+    }
+
+    // ===================== RESOLVE COMPLAINT =====================
+    function resolveComplaint(id) {
+        fetch(`http://localhost:8080/api/complaints/${id}/resolve`, {
+            method: "PUT",
+            headers: {
+                "Authorization": "Bearer " + admin.token
+            }
+        })
+        .then(() => loadAllComplaints());
+    }
+
+    // ===================== LOGOUT =====================
+    function logout() {
+        localStorage.clear();
+        window.location.href = "login.html";
+    }
+
+    loadAllComplaints();
+</script>
+
+</body>
+</html>

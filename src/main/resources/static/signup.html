@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ResolveIT - Sign Up</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gradient-to-r from-indigo-900 via-blue-800 to-indigo-900 min-h-screen flex items-center justify-center">
+
+<div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
+    <h1 class="text-3xl font-bold text-center text-indigo-800">Create Account</h1>
+    <p class="text-center text-gray-500 mb-6">Join ResolveIT and submit complaints easily</p>
+
+    <form id="signupForm" class="space-y-5">
+
+        <!-- FULL NAME -->
+        <div>
+            <label class="block text-sm font-semibold mb-1">Full Name</label>
+            <input type="text" id="name" class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-indigo-600" placeholder="Enter your full name" required>
+        </div>
+
+        <!-- USERNAME -->
+        <div>
+            <label class="block text-sm font-semibold mb-1">Username</label>
+            <input type="text" id="username" class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-indigo-600" placeholder="Choose a username" required>
+        </div>
+
+        <!-- PASSWORD -->
+        <div>
+            <label class="block text-sm font-semibold mb-1">Password</label>
+            <input type="password" id="password" class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-indigo-600" placeholder="Enter password" required>
+        </div>
+
+        <!-- CONFIRM PASSWORD -->
+        <div>
+            <label class="block text-sm font-semibold mb-1">Confirm Password</label>
+            <input type="password" id="confirmPassword" class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-indigo-600" placeholder="Confirm password" required>
+        </div>
+
+        <!-- ROLE SELECTION (IF YOU WANT ONLY USER, REMOVE THIS DROPDOWN) -->
+        <div>
+            <label class="block text-sm font-semibold mb-1">Register As</label>
+            <select id="role" class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-indigo-600">
+                <option value="USER">User</option>
+                <option value="ADMIN">Admin</option> <!-- You can remove this if not needed -->
+            </select>
+        </div>
+
+        <!-- SIGNUp BUTTON -->
+        <button type="submit"
+                class="w-full bg-indigo-700 text-white py-3 rounded-xl hover:bg-indigo-800 transition font-semibold">
+            Sign Up
+        </button>
+
+        <!-- BACK TO LOG in -->
+        <p class="text-center text-indigo-700 font-semibold mt-4">
+            Already have an account?
+            <a href="login.html" class="underline hover:text-indigo-900">Login</a>
+        </p>
+
+        <p id="errorMsg" class="text-red-500 text-center mt-2"></p>
+        <p id="successMsg" class="text-green-600 text-center mt-2"></p>
+    </form>
+</div>
+
+<script>
+    document.getElementById("signupForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        const name = document.getElementById("name").value.trim();
+        const username = document.getElementById("username").value.trim();
+        const password = document.getElementById("password").value.trim();
+        const confirmPassword = document.getElementById("confirmPassword").value.trim();
+        const role = document.getElementById("role").value;
+
+        const errorMsg = document.getElementById("errorMsg");
+        const successMsg = document.getElementById("successMsg");
+
+        errorMsg.innerText = "";
+        successMsg.innerText = "";
+
+        // VALIDATION
+        if (password !== confirmPassword) {
+            errorMsg.innerText = "Passwords do not match!";
+            return;
+        }
+
+        fetch("http://localhost:8080/api/register", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                name,
+                username,
+                password,
+                role
+            })
+        })
+        .then(async res => {
+            if (!res.ok) {
+                const msg = await res.text();
+                throw new Error(msg || "Registration failed");
+            }
+            return res.json();
+        })
+        .then(data => {
+            successMsg.innerText = "Registration successful! Redirecting to login...";
+
+            setTimeout(() => {
+                window.location.href = "login.html";
+            }, 1500);
+        })
+        .catch(err => {
+            errorMsg.innerText = "Username already exists or invalid data!";
+        });
+    });
+</script>
+
+</body>
+</html>
