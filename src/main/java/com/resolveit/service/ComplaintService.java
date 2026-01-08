@@ -1,9 +1,15 @@
+
 package com.resolveit.service;
+import com.resolveit.model.User;
+import com.resolveit.util.FileUploadUtil;
+import com.resolveit.model.Department;
+
+import org.springframework.web.multipart.MultipartFile;
 
 import com.resolveit.dto.ComplaintRequest;
 import com.resolveit.model.Complaint;
-import com.resolveit.model.User;
 import com.resolveit.repository.ComplaintRepository;
+import com.resolveit.repository.DepartmentRepository;
 import com.resolveit.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -14,10 +20,13 @@ public class ComplaintService {
 
     private final ComplaintRepository complaintRepo;
     private final UserRepository userRepo;
+    private final DepartmentRepository departmentRepo;
 
-    public ComplaintService(ComplaintRepository complaintRepo, UserRepository userRepo) {
+
+    public ComplaintService(ComplaintRepository complaintRepo, UserRepository userRepo, DepartmentRepository departmentRepo) {
         this.complaintRepo = complaintRepo;
         this.userRepo = userRepo;
+        this.departmentRepo = departmentRepo;
     }
 
     public Complaint createComplaint(ComplaintRequest request) {
@@ -33,6 +42,36 @@ public class ComplaintService {
         return complaintRepo.save(complaint);
     }
 
+    public Complaint createComplaintWithFile(
+            ComplaintRequest request,
+            MultipartFile file
+    ) throws Exception {
+
+        // Create complaint using existing logic
+        Complaint complaint = createComplaint(request);
+
+        // Handle file
+        if (file != null && !file.isEmpty()) {
+
+            String filePath = FileUploadUtil.saveFile(file);
+
+            String contentType = file.getContentType();
+            String type = contentType != null && contentType.startsWith("image")
+                    ? "IMAGE"
+                    : "VIDEO";
+
+            complaint.setAttachmentPath(filePath);
+            complaint.setAttachmentType(type);
+
+            // ✅ NON-static call
+            return complaintRepo.save(complaint);
+        }
+
+        return complaint;
+    }
+
+
+
     public List<Complaint> getUserComplaints(Long userId) {
         User user = userRepo.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -44,13 +83,19 @@ public class ComplaintService {
         return complaintRepo.findAll();
     }
 
-    public Complaint assignDepartment(Long complaintId, Long departmentId) {
+    public void assignDepartment(Long complaintId, Long departmentId) {
+
         Complaint complaint = complaintRepo.findById(complaintId)
                 .orElseThrow(() -> new RuntimeException("Complaint not found"));
 
-        complaint.setStatus("ASSIGNED");
-        return complaintRepo.save(complaint);
+        Department department = departmentRepo.findById(departmentId)
+                .orElseThrow(() -> new RuntimeException("Department not found"));
+
+        complaint.setDepartment(department);
+
+        complaintRepo.save(complaint);
     }
+
 
     public Complaint resolveComplaint(Long complaintId) {
         Complaint complaint = complaintRepo.findById(complaintId)
@@ -59,5 +104,20 @@ public class ComplaintService {
         complaint.setStatus("RESOLVED");
         return complaintRepo.save(complaint);
     }
+    public Complaint addFeedback(Long complaintId, String feedback, Integer rating) {
+
+        Complaint complaint = complaintRepo.findById(complaintId)
+                .orElseThrow(() -> new RuntimeException("Complaint not found"));
+
+        if (!"RESOLVED".equals(complaint.getStatus())) {
+            throw new RuntimeException("Feedback allowed only for resolved complaints");
+        }
+
+        complaint.setFeedback(feedback);
+        complaint.setRating(rating);
+
+        return complaintRepo.save(complaint);
+    }
+
 
 }

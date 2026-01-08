@@ -3,7 +3,10 @@ package com.resolveit.security;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
+
+
 
 public class JwtFilter implements Filter {
 
@@ -14,40 +17,31 @@ public class JwtFilter implements Filter {
     }
 
     @Override
-    public void doFilter(
-            ServletRequest request,
-            ServletResponse response,
-            FilterChain chain
-    ) throws IOException, ServletException {
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+            throws IOException, ServletException {
 
         HttpServletRequest req = (HttpServletRequest) request;
-        HttpServletResponse res = (HttpServletResponse) response;
 
-        String path = req.getRequestURI();
-
-        // 🔓 Allow public endpoints
-        if (path.equals("/api/login") || path.equals("/api/register")) {
+        if (req.getMethod().equalsIgnoreCase("OPTIONS")) {
             chain.doFilter(request, response);
             return;
         }
 
         String authHeader = req.getHeader("Authorization");
+        System.out.println("AUTH HEADER = " + authHeader);
 
-        // ❌ BLOCK if token missing
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Missing JWT Token");
+            ((HttpServletResponse) response).sendError(401, "Missing Token");
             return;
         }
 
-        String token = authHeader.substring(7);
+        String token = authHeader.substring(7).trim();
 
-        // ❌ BLOCK if token invalid
         if (!jwtUtil.isTokenValid(token)) {
-            res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT Token");
+            ((HttpServletResponse) response).sendError(401, "Invalid Token");
             return;
         }
 
-        // ✅ Token valid → allow request
         chain.doFilter(request, response);
     }
 }

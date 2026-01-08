@@ -15,6 +15,8 @@ public class User {
     @Column(unique = true)
     private String username;
 
+    @Column(unique = true)
+    private String email;
     private String password;
 
     private String role; // USER or ADMIN
@@ -35,6 +37,14 @@ public class User {
     public void setName(String name) {
         this.name = name;
     }
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
 
     public String getUsername() {
         return username;

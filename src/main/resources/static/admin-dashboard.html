@@ -1,126 +1,300 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Admin Dashboard - ResolveIT</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard • ResolveIT</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = { darkMode: 'class' }
+    </script>
+    <script>
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 10px; }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); }
+
+        /* Card Styles */
+        .stat-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+        .dark .stat-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: none;
+            backdrop-filter: blur(12px);
+        }
+
+        /* Table Container */
+        .glass-panel {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+        }
+        .dark .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(16px);
+        }
+
+        /* Input Styling */
+        .select-input {
+            background-color: #f8fafc;
+            border: 1px solid #cbd5e1;
+            color: #0f172a;
+        }
+        .dark .select-input {
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            color: white;
+        }
+    </style>
 </head>
-<body class="bg-gray-100 p-6">
 
-<div class="flex justify-between items-center mb-6">
-    <h1 class="text-3xl font-bold">Admin Dashboard</h1>
-    <button onclick="logout()" class="bg-red-600 text-white px-4 py-2 rounded">Logout</button>
-</div>
+<body class="min-h-screen bg-slate-50 dark:bg-[#0f172a] text-slate-800 dark:text-slate-200 transition-colors duration-300">
 
-<!-- STATS -->
-<div class="grid grid-cols-3 gap-4 mb-6">
-    <div class="bg-white p-4 rounded shadow text-center">
-        <p class="text-gray-500">Total Complaints</p>
-        <h2 id="totalAdmin" class="text-3xl font-bold">0</h2>
-    </div>
-    <div class="bg-white p-4 rounded shadow text-center">
-        <p class="text-gray-500">Pending</p>
-        <h2 id="pendingAdmin" class="text-3xl font-bold text-red-600">0</h2>
-    </div>
-    <div class="bg-white p-4 rounded shadow text-center">
-        <p class="text-gray-500">Resolved</p>
-        <h2 id="resolvedAdmin" class="text-3xl font-bold text-green-600">0</h2>
-    </div>
-</div>
+<div class="max-w-[1400px] mx-auto p-4 lg:p-8">
 
-<!-- COMPLAINT LIST -->
-<div class="bg-white rounded shadow p-4">
-    <table class="w-full text-left">
-        <thead>
-        <tr class="border-b font-bold">
-            <th class="p-2">Title</th>
-            <th class="p-2">Description</th>
-            <th class="p-2">Status</th>
-            <th class="p-2">Action</th>
-        </tr>
-        </thead>
-        <tbody id="adminTable"></tbody>
-    </table>
+    <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
+        <div>
+            <div class="flex items-center gap-2 mb-1">
+                <span class="bg-indigo-500 w-2 h-2 rounded-full animate-pulse"></span>
+                <span class="text-indigo-600 dark:text-indigo-400 text-xs font-bold uppercase tracking-widest">Admin Control</span>
+            </div>
+            <h1 class="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">System Overview</h1>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <button onclick="toggleTheme()" class="p-2.5 rounded-xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/10 transition-colors">
+                <i data-lucide="sun" class="w-5 h-5 hidden dark:block text-yellow-400"></i>
+                <i data-lucide="moon" class="w-5 h-5 block dark:hidden text-slate-600"></i>
+            </button>
+
+            <button onclick="logout()" class="flex items-center gap-2 bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20 px-5 py-2.5 rounded-xl transition-all font-medium">
+                <i data-lucide="log-out" class="w-4 h-4"></i>
+                Logout
+            </button>
+        </div>
+    </header>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        <div class="stat-card p-6 rounded-2xl relative overflow-hidden">
+            <div class="absolute right-4 top-4 bg-slate-100 dark:bg-white/5 p-3 rounded-lg">
+                <i data-lucide="layers" class="w-6 h-6 text-slate-400 dark:text-white"></i>
+            </div>
+            <p class="text-slate-500 dark:text-slate-400 text-sm font-medium uppercase tracking-wide">Total Complaints</p>
+            <h2 id="totalAdmin" class="text-4xl font-black text-slate-900 dark:text-white mt-4">0</h2>
+        </div>
+
+        <div class="stat-card p-6 rounded-2xl border-l-4 border-l-yellow-400 relative overflow-hidden">
+            <div class="absolute right-4 top-4 bg-yellow-100 dark:bg-yellow-500/10 p-3 rounded-lg">
+                <i data-lucide="clock" class="w-6 h-6 text-yellow-600 dark:text-yellow-400"></i>
+            </div>
+            <p class="text-slate-500 dark:text-slate-400 text-sm font-medium uppercase tracking-wide">Pending</p>
+            <h2 id="pendingAdmin" class="text-4xl font-black text-yellow-600 dark:text-yellow-400 mt-4">0</h2>
+        </div>
+
+        <div class="stat-card p-6 rounded-2xl border-l-4 border-l-emerald-500 relative overflow-hidden">
+            <div class="absolute right-4 top-4 bg-emerald-100 dark:bg-emerald-500/10 p-3 rounded-lg">
+                <i data-lucide="check-circle-2" class="w-6 h-6 text-emerald-600 dark:text-emerald-400"></i>
+            </div>
+            <p class="text-slate-500 dark:text-slate-400 text-sm font-medium uppercase tracking-wide">Resolved</p>
+            <h2 id="resolvedAdmin" class="text-4xl font-black text-emerald-600 dark:text-emerald-400 mt-4">0</h2>
+        </div>
+    </div>
+
+    <div class="glass-panel rounded-3xl overflow-hidden shadow-sm">
+        <div class="p-6 border-b border-slate-200 dark:border-white/5 flex items-center gap-3 bg-slate-50/50 dark:bg-white/[0.02]">
+            <div class="bg-indigo-100 dark:bg-indigo-500/20 p-2 rounded-lg">
+                <i data-lucide="list-filter" class="text-indigo-600 dark:text-indigo-400 w-5 h-5"></i>
+            </div>
+            <h2 class="text-xl font-bold text-slate-800 dark:text-white">Grievance & Feedback</h2>
+        </div>
+
+        <div class="overflow-x-auto custom-scrollbar">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                <tr class="text-slate-500 text-xs uppercase tracking-[0.1em] bg-slate-100 dark:bg-white/[0.01]">
+                    <th class="px-6 py-5 font-bold">Details</th>
+                    <th class="px-6 py-5 font-bold">Status</th>
+                    <th class="px-6 py-5 font-bold">Department</th>
+                    <th class="px-6 py-5 font-bold">User Feedback</th>
+                    <th class="px-6 py-5 font-bold text-right">Actions</th>
+                </tr>
+                </thead>
+                <tbody id="adminTable" class="divide-y divide-slate-200 dark:divide-white/5"></tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
 <script>
     const admin = JSON.parse(localStorage.getItem("user"));
+    if (!admin) location.href = "login.html";
 
-    // Redirect if not logged in
-    if (!admin) {
-        window.location.href = "login.html";
+    let departments = [];
+
+    function loadDepartments() {
+        return fetch("http://localhost:8080/api/departments", {
+            headers: { Authorization: "Bearer " + admin.token }
+        })
+        .then(res => res.json())
+        .then(data => departments = data);
     }
 
-    // ===================== LOAD ALL COMPLAINTS =====================
-    function loadAllComplaints() {
-        fetch("http://localhost:8080/api/complaints", {
-            headers: {
-                "Authorization": "Bearer " + admin.token
-            }
-        })
-        .then(res => {
-            if (res.status === 401) {
-                alert("Session expired. Please login again.");
-                logout();
-            }
-            return res.json();
-        })
-        .then(data => {
+    function stars(rating) {
+        if (!rating) return "—";
+        return "★".repeat(rating) + "☆".repeat(5 - rating);
+    }
 
+    function loadAllComplaints() {
+        Promise.all([
+            loadDepartments(),
+            fetch("http://localhost:8080/api/complaints", {
+                headers: { Authorization: "Bearer " + admin.token }
+            }).then(res => res.json())
+        ])
+        .then(([_, complaints]) => {
             const table = document.getElementById("adminTable");
             table.innerHTML = "";
 
-            let total = data.length;
-            let pending = 0;
-            let resolved = 0;
+            let pending = 0, resolved = 0;
 
-            data.forEach(c => {
-                if (c.status === "RESOLVED") resolved++;
-                else pending++;
+            complaints.forEach(c => {
+                const isResolved = c.status === "RESOLVED";
+                const isAssigned = c.department != null; // CHECK IF DEPARTMENT EXISTS
 
-                let color = c.status === "RESOLVED" ? "text-green-600" : "text-red-600";
+                if(isResolved) resolved++; else pending++;
+
+                const deptOptions = departments.map(d =>
+                    `<option value="${d.id}" ${c.department && c.department.id === d.id ? "selected" : ""}>
+                        ${d.name}
+                    </option>`
+                ).join("");
+
+                // --- UPDATED BADGE LOGIC HERE ---
+                let badgeClass, badgeDot, badgeText;
+
+                if (isResolved) {
+                    badgeClass = "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20";
+                    badgeDot = "bg-emerald-500";
+                    badgeText = "RESOLVED";
+                } else if (isAssigned) {
+                    // THIS IS THE MISSING LOGIC RESTORED:
+                    badgeClass = "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20";
+                    badgeDot = "bg-blue-500";
+                    badgeText = "ASSIGNED";
+                } else {
+                    badgeClass = "bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-500/10 dark:text-yellow-400 dark:border-yellow-500/20";
+                    badgeDot = "bg-yellow-500";
+                    badgeText = "PENDING";
+                }
 
                 table.innerHTML += `
-                    <tr class="border-b">
-                        <td class="p-2">${c.title}</td>
-                        <td class="p-2">${c.description}</td>
-                        <td class="p-2 font-bold ${color}">${c.status}</td>
-                        <td class="p-2">
-                            ${c.status !== "RESOLVED"
-                                ? `<button onclick="resolveComplaint(${c.id})"
-                                    class="bg-blue-600 text-white px-3 py-1 rounded">
-                                   Resolve
-                                   </button>`
-                                : `<span class="text-gray-400 italic">Completed</span>`
-                            }
+                    <tr class="hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors group">
+                        <td class="px-6 py-5">
+                            <div class="font-semibold text-slate-900 dark:text-white">${c.title}</div>
+                            <div class="text-xs text-slate-500 font-mono mt-1">ID: #${c.id}</div>
                         </td>
-                    </tr>`;
+                        <td class="px-6 py-5">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase border ${badgeClass}">
+                                <span class="w-1.5 h-1.5 rounded-full ${badgeDot}"></span>
+                                ${badgeText}
+                            </span>
+                        </td>
+                        <td class="px-6 py-5">
+                            <div class="relative max-w-[180px]">
+                                <select id="dept-${c.id}" class="select-input w-full p-2 rounded-lg text-xs font-medium focus:ring-1 focus:ring-indigo-500 outline-none appearance-none cursor-pointer">
+                                    <option value="">Select Dept</option>
+                                    ${deptOptions}
+                                </select>
+                                <i data-lucide="chevron-down" class="absolute right-2 top-2.5 w-3.5 h-3.5 text-slate-500 pointer-events-none"></i>
+                            </div>
+                        </td>
+                        <td class="px-6 py-5">
+                            ${c.feedback ? `
+                                <div class="bg-slate-100 dark:bg-white/5 p-3 rounded-xl border border-slate-200 dark:border-white/5 max-w-xs">
+                                    <div class="text-yellow-500 text-sm tracking-widest mb-1">${stars(c.rating)}</div>
+                                    <div class="text-xs text-slate-600 dark:text-slate-300 italic">"${c.feedback}"</div>
+                                </div>
+                            ` : `<span class="text-slate-400 text-xs italic opacity-50">No feedback yet</span>`}
+                        </td>
+                        <td class="px-6 py-5 text-right space-x-2">
+                            <button onclick="assignDepartment(${c.id})"
+                                    class="bg-indigo-600 hover:bg-indigo-500 text-white p-2 rounded-lg shadow-md transition-all active:scale-95" title="${isAssigned ? 'Reassign' : 'Assign'}">
+                                <i data-lucide="user-plus" class="w-4 h-4"></i>
+                            </button>
+                            ${c.status !== "RESOLVED" ? `
+                                <button onclick="resolveComplaint(${c.id})"
+                                        class="bg-emerald-600 hover:bg-emerald-500 text-white p-2 rounded-lg shadow-md transition-all active:scale-95" title="Mark as Resolved">
+                                    <i data-lucide="check" class="w-4 h-4"></i>
+                                </button>
+                            ` : ''}
+                        </td>
+                    </tr>
+                `;
             });
 
-            document.getElementById("totalAdmin").innerText = total;
+            document.getElementById("totalAdmin").innerText = complaints.length;
             document.getElementById("pendingAdmin").innerText = pending;
             document.getElementById("resolvedAdmin").innerText = resolved;
+
+            lucide.createIcons();
         });
     }
 
-    // ===================== RESOLVE COMPLAINT =====================
+    function assignDepartment(id) {
+        const deptId = document.getElementById(`dept-${id}`).value;
+        if (!deptId) return alert("Select department");
+
+        fetch("http://localhost:8080/api/complaints/assign", {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + admin.token
+            },
+            body: JSON.stringify({
+                complaintId: id,
+                departmentId: deptId
+            })
+        }).then(loadAllComplaints);
+    }
+
     function resolveComplaint(id) {
         fetch(`http://localhost:8080/api/complaints/${id}/resolve`, {
             method: "PUT",
-            headers: {
-                "Authorization": "Bearer " + admin.token
-            }
-        })
-        .then(() => loadAllComplaints());
+            headers: { Authorization: "Bearer " + admin.token }
+        }).then(loadAllComplaints);
     }
 
-    // ===================== LOGOUT =====================
     function logout() {
         localStorage.clear();
-        window.location.href = "login.html";
+        location.href = "login.html";
+    }
+
+    function toggleTheme() {
+        if (document.documentElement.classList.contains('dark')) {
+            document.documentElement.classList.remove('dark');
+            localStorage.theme = 'light';
+        } else {
+            document.documentElement.classList.add('dark');
+            localStorage.theme = 'dark';
+        }
     }
 
     loadAllComplaints();
 </script>
-
 </body>
 </html>

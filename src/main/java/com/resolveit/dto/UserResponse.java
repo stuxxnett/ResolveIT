@@ -5,17 +5,21 @@ public class UserResponse {
     private Long id;
     private String name;
     private String username;
+    private String email;
     private String role;
     private String token;
 
-    // 🔥 REQUIRED BY SPRING/JACKSON
-    public UserResponse() {}
-
-    // MAIN CONSTRUCTOR
-    public UserResponse(Long id, String name, String username, String role, String token) {
+    // ✅ CORRECT CONSTRUCTOR (6 params)
+    public UserResponse(Long id,
+                        String name,
+                        String username,
+                        String email,
+                        String role,
+                        String token) {
         this.id = id;
         this.name = name;
         this.username = username;
+        this.email = email;
         this.role = role;
         this.token = token;
     }
@@ -29,6 +33,9 @@ public class UserResponse {
 
     public String getUsername() { return username; }
     public void setUsername(String username) { this.username = username; }
+
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 
     public String getRole() { return role; }
     public void setRole(String role) { this.role = role; }

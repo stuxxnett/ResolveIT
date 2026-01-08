@@ -1,16 +1,133 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>ResolveIT - Home</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to ResolveIT</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .hero-gradient {
+            background: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #0f172a 100%);
+        }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+        .float-animation { animation: float 6s ease-in-out infinite; }
+    </style>
 </head>
-<body class="bg-gray-100">
-<div class="flex items-center justify-center h-screen">
-    <div class="bg-white p-8 rounded-xl shadow-lg text-center w-96">
-        <h1 class="text-3xl font-bold text-blue-600 mb-4">ResolveIT</h1>
-        <p class="mb-6">Grievance & Complaint Management System</p>
-        <a href="login.html" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">Login</a>
-    </div>
+<body class="hero-gradient text-slate-200 min-h-screen overflow-x-hidden">
+
+<div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+    <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-600/20 rounded-full blur-[120px]"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-600/10 rounded-full blur-[120px]"></div>
 </div>
+
+<nav class="relative z-10 max-w-7xl mx-auto px-6 py-8 flex justify-between items-center">
+    <div class="flex items-center gap-2">
+        <div class="bg-indigo-600 p-2 rounded-xl shadow-lg shadow-indigo-500/20">
+            <i data-lucide="shield-check" class="text-white w-6 h-6"></i>
+        </div>
+        <span class="text-2xl font-black text-white tracking-tighter">ResolveIT</span>
+    </div>
+    <div class="flex items-center gap-6">
+        <a href="login.html" class="text-sm font-semibold text-slate-400 hover:text-white transition-colors">Sign In</a>
+        <a href="signup.html" class="bg-white text-slate-900 px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-slate-200 transition-all shadow-xl">Get Started</a>
+    </div>
+</nav>
+
+<main class="relative z-10 max-w-7xl mx-auto px-6 pt-16 pb-24 grid lg:grid-cols-2 gap-12 items-center">
+    <div class="text-left">
+            <span class="inline-block py-1 px-3 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-bold tracking-widest uppercase mb-6">
+                Next-Gen Grievance Management
+            </span>
+        <h1 class="text-5xl lg:text-7xl font-extrabold text-white leading-tight mb-6">
+            Resolving Issues, <br>
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-blue-400">Restoring Trust.</span>
+        </h1>
+        <p class="text-lg text-slate-400 mb-10 max-w-lg leading-relaxed">
+            The most efficient platform for filing complaints, tracking resolutions, and ensuring your voice is heard. Empowering organizations to act faster.
+        </p>
+
+        <div class="flex flex-wrap gap-4">
+            <a href="login.html" class="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-4 rounded-2xl font-bold text-lg shadow-2xl shadow-indigo-500/30 transition-all active:scale-95">
+                Launch Dashboard
+                <i data-lucide="chevron-right" class="w-5 h-5"></i>
+            </a>
+            <div class="flex -space-x-3 items-center ml-4">
+                <img class="w-10 h-10 rounded-full border-2 border-slate-900" src="https://i.pravatar.cc/100?u=1" alt="user">
+                <img class="w-10 h-10 rounded-full border-2 border-slate-900" src="https://i.pravatar.cc/100?u=2" alt="user">
+                <img class="w-10 h-10 rounded-full border-2 border-slate-900" src="https://i.pravatar.cc/100?u=3" alt="user">
+                <span class="pl-6 text-sm text-slate-500 font-medium">Trusted by 2,000+ users</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="hidden lg:block relative">
+        <div class="glass p-8 rounded-[2rem] shadow-2xl float-animation">
+            <div class="flex justify-between items-center mb-8">
+                <div class="flex gap-2">
+                    <div class="w-3 h-3 rounded-full bg-red-500/50"></div>
+                    <div class="w-3 h-3 rounded-full bg-yellow-500/50"></div>
+                    <div class="w-3 h-3 rounded-full bg-green-500/50"></div>
+                </div>
+                <div class="h-1.5 w-32 bg-slate-800 rounded-full"></div>
+            </div>
+            <div class="space-y-4">
+                <div class="h-12 w-full bg-white/5 rounded-xl animate-pulse"></div>
+                <div class="grid grid-cols-3 gap-4">
+                    <div class="h-20 bg-indigo-500/20 rounded-xl border border-indigo-500/20"></div>
+                    <div class="h-20 bg-white/5 rounded-xl"></div>
+                    <div class="h-20 bg-white/5 rounded-xl"></div>
+                </div>
+                <div class="h-32 w-full bg-white/5 rounded-xl"></div>
+            </div>
+            <div class="absolute -bottom-6 -left-6 glass p-6 rounded-2xl shadow-2xl border-indigo-500/30">
+                <div class="flex items-center gap-4">
+                    <div class="bg-emerald-500/20 p-3 rounded-full">
+                        <i data-lucide="check" class="text-emerald-400 w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400 uppercase font-bold tracking-tighter">Status</p>
+                        <p class="text-white font-bold">Resolved in 2h</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<section class="max-w-7xl mx-auto px-6 py-20 border-t border-white/5">
+    <div class="grid md:grid-cols-3 gap-12">
+        <div class="flex flex-col gap-4">
+            <div class="text-indigo-400"><i data-lucide="Zap" class="w-8 h-8"></i></div>
+            <h3 class="text-xl font-bold text-white">Instant Filing</h3>
+            <p class="text-slate-400 leading-relaxed">Submit your grievances in seconds with our streamlined interface and file attachment support.</p>
+        </div>
+        <div class="flex flex-col gap-4">
+            <div class="text-blue-400"><i data-lucide="Activity" class="w-8 h-8"></i></div>
+            <h3 class="text-xl font-bold text-white">Real-time Tracking</h3>
+            <p class="text-slate-400 leading-relaxed">Stay updated with live status changes as departments work to resolve your reported issues.</p>
+        </div>
+        <div class="flex flex-col gap-4">
+            <div class="text-emerald-400"><i data-lucide="MessageSquare" class="w-8 h-8"></i></div>
+            <h3 class="text-xl font-bold text-white">Feedback Loop</h3>
+            <p class="text-slate-400 leading-relaxed">Rate the resolution quality and provide feedback to ensure service standards are maintained.</p>
+        </div>
+    </div>
+</section>
+
+<footer class="text-center py-12 border-t border-white/5">
+    <p class="text-slate-600 text-sm">© 2026 ResolveIT Management Systems. All rights reserved.</p>
+</footer>
+
+<script>
+    lucide.createIcons();
+</script>
 </body>
 </html>

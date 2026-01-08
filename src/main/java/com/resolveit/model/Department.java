@@ -10,14 +10,19 @@ public class Department {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true, nullable = false)
     private String name;
 
-    public Long getId() {
-        return id;
+    // Constructors
+    public Department() {}
+
+    public Department(String name) {
+        this.name = name;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    // Getters & Setters
+    public Long getId() {
+        return id;
     }
 
     public String getName() {

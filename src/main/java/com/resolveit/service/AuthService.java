@@ -1,8 +1,8 @@
 package com.resolveit.service;
 
+import com.resolveit.model.User;
 import com.resolveit.dto.LoginRequest;
 import com.resolveit.dto.UserResponse;
-import com.resolveit.model.User;
 import com.resolveit.repository.UserRepository;
 import com.resolveit.security.JwtUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,6 +14,7 @@ public class AuthService {
     private final UserRepository userRepo;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;  // ✅ ADD THIS
+
 
     public AuthService(UserRepository userRepo,
                        PasswordEncoder passwordEncoder,
@@ -39,6 +40,8 @@ public class AuthService {
                 user.getId(),
                 user.getName(),
                 user.getUsername(),
+
+                user.getEmail(),
                 user.getRole(),
                 token  // ✅ Send token to frontend
         );

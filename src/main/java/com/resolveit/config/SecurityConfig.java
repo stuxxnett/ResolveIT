@@ -11,29 +11,29 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 public class SecurityConfig {
 
-    // 1️⃣ Password Encoder Bean
+    // ✅ Password Encoder
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // 2️⃣ JwtFilter Bean
+    // ✅ CREATE JwtFilter BEAN
     @Bean
-    public JwtFilter jwtFilterBean(JwtUtil jwtUtil) {
+    public JwtFilter jwtFilter(JwtUtil jwtUtil) {
         return new JwtFilter(jwtUtil);
     }
 
-    // 3️⃣ Register Filter for API Paths
+    // ✅ REGISTER FILTER
     @Bean
-    public FilterRegistrationBean<JwtFilter> jwtFilter(JwtFilter filter) {
+    public FilterRegistrationBean<JwtFilter> jwtFilterRegistration(JwtFilter jwtFilter) {
 
         FilterRegistrationBean<JwtFilter> registration = new FilterRegistrationBean<>();
 
-        registration.setFilter(filter);
-        registration.addUrlPatterns("/api/complaints");
-        registration.addUrlPatterns("/api/complaints/*");
-        registration.addUrlPatterns("/api/admin/*");
-
+        registration.setFilter(jwtFilter);
+        registration.addUrlPatterns(
+                "/api/complaints/*",
+                "/api/admin/*"
+        );
 
         return registration;
     }

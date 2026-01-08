@@ -1,143 +1,272 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>User Dashboard - ResolveIT</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard • ResolveIT</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .glass-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); transition: all 0.3s ease; }
+        .glass-card:hover { background: rgba(255, 255, 255, 0.06); transform: translateY(-2px); }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+    </style>
 </head>
-<body class="bg-gray-100 p-6">
 
-<div class="flex justify-between items-center mb-6">
-    <h1 class="text-3xl font-bold">User Dashboard</h1>
-    <button onclick="logout()" class="bg-red-600 text-white px-4 py-2 rounded">Logout</button>
-</div>
+<body class="min-h-screen bg-[#0f172a] text-slate-200">
 
-<!-- STATS CARDS -->
-<div class="grid grid-cols-3 gap-4 mb-6">
-    <div class="bg-white p-4 rounded shadow text-center">
-        <p class="text-gray-500">Total</p>
-        <h2 id="totalCount" class="text-3xl font-bold">0</h2>
-    </div>
-    <div class="bg-white p-4 rounded shadow text-center">
-        <p class="text-gray-500">Pending</p>
-        <h2 id="pendingCount" class="text-3xl font-bold text-red-600">0</h2>
-    </div>
-    <div class="bg-white p-4 rounded shadow text-center">
-        <p class="text-gray-500">Resolved</p>
-        <h2 id="resolvedCount" class="text-3xl font-bold text-green-600">0</h2>
+<div id="loader" class="fixed inset-0 bg-slate-950/80 hidden z-[100] flex items-center justify-center backdrop-blur-sm">
+    <div class="glass p-8 rounded-2xl flex flex-col items-center gap-4">
+        <div class="animate-spin h-10 w-10 border-4 border-indigo-500 border-t-transparent rounded-full"></div>
+        <span class="font-medium tracking-wide">Processing your request...</span>
     </div>
 </div>
 
-<!-- SUBMIT COMPLAINT -->
-<div class="bg-white p-5 rounded shadow mb-6">
-    <h2 class="text-xl font-bold mb-3">Submit New Complaint</h2>
+<div class="max-w-7xl mx-auto p-4 lg:p-8">
 
-    <input id="title" placeholder="Complaint Title" class="border p-2 w-full mb-2 rounded" />
-    <textarea id="desc" placeholder="Complaint Description" class="border p-2 w-full mb-2 rounded"></textarea>
+    <nav class="flex justify-between items-center mb-10">
+        <div class="flex items-center gap-2">
+            <div class="bg-indigo-600 p-2 rounded-lg">
+                <i data-lucide="shield-check" class="text-white w-6 h-6"></i>
+            </div>
+            <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
+                ResolveIT
+            </h1>
+        </div>
+        <button onclick="logout()" class="flex items-center gap-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 px-4 py-2 rounded-xl transition-all">
+            <i data-lucide="log-out" class="w-4 h-4"></i>
+            <span class="font-medium">Logout</span>
+        </button>
+    </nav>
 
-    <button onclick="submitComplaint()" class="bg-blue-600 text-white px-4 py-2 rounded">Submit Complaint</button>
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
-    <p id="errorMsg" class="text-red-600 mt-2"></p>
+        <div class="lg:col-span-4 space-y-6">
+
+            <div class="grid grid-cols-3 gap-4">
+                <div class="glass p-4 rounded-2xl">
+                    <p class="text-xs text-slate-400 uppercase font-semibold">Total</p>
+                    <h2 id="totalCount" class="text-2xl font-bold mt-1">0</h2>
+                </div>
+                <div class="glass p-4 rounded-2xl border-l-4 border-l-yellow-500/50">
+                    <p class="text-xs text-slate-400 uppercase font-semibold">Pending</p>
+                    <h2 id="pendingCount" class="text-2xl font-bold text-yellow-400 mt-1">0</h2>
+                </div>
+                <div class="glass p-4 rounded-2xl border-l-4 border-l-emerald-500/50">
+                    <p class="text-xs text-slate-400 uppercase font-semibold">Solved</p>
+                    <h2 id="resolvedCount" class="text-2xl font-bold text-emerald-400 mt-1">0</h2>
+                </div>
+            </div>
+
+            <div class="glass p-6 rounded-2xl shadow-xl">
+                <div class="flex items-center gap-2 mb-6">
+                    <i data-lucide="plus-circle" class="text-indigo-400 w-5 h-5"></i>
+                    <h2 class="text-xl font-bold text-white">New Complaint</h2>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm text-slate-400 mb-1.5 ml-1">Title</label>
+                        <input id="title" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 outline-none transition-all" placeholder="Brief summary...">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-slate-400 mb-1.5 ml-1">Description</label>
+                        <textarea id="desc" rows="4" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 outline-none transition-all" placeholder="Provide details..."></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm text-slate-400 mb-1.5 ml-1">Attachment</label>
+                        <input id="file" type="file" class="w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-600/10 file:text-indigo-400 hover:file:bg-indigo-600/20 cursor-pointer">
+                    </div>
+
+                    <button onclick="submitComplaint()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl shadow-lg shadow-indigo-500/20 transition-all flex items-center justify-center gap-2">
+                        <span>Submit Report</span>
+                    </button>
+                    <p id="errorMsg" class="text-red-400 text-sm text-center"></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="lg:col-span-8">
+            <div class="glass rounded-2xl overflow-hidden shadow-xl">
+                <div class="p-6 border-b border-white/10 flex justify-between items-center bg-white/5">
+                    <h2 class="text-xl font-bold text-white">Recent Complaints</h2>
+                    <span class="px-3 py-1 bg-indigo-500/10 text-indigo-400 rounded-full text-xs font-bold border border-indigo-500/20">Live Sync</span>
+                </div>
+
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="w-full text-left">
+                        <thead>
+                        <tr class="text-slate-400 text-sm uppercase tracking-wider">
+                            <th class="px-6 py-4 font-semibold">Issue</th>
+                            <th class="px-6 py-4 font-semibold">Status</th>
+                            <th class="px-6 py-4 font-semibold text-right">Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody id="complaintTable" class="divide-y divide-white/5">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
-<!-- COMPLAINT TABLE -->
-<div class="bg-white rounded shadow p-4">
-    <table class="w-full text-left">
-        <thead>
-        <tr class="border-b font-bold">
-            <th class="p-2">Title</th>
-            <th class="p-2">Description</th>
-            <th class="p-2">Status</th>
-        </tr>
-        </thead>
-        <tbody id="complaintTable"></tbody>
-    </table>
+<div id="feedbackModal" class="fixed inset-0 hidden z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="glass bg-slate-900 border border-white/20 p-8 rounded-3xl w-full max-w-md shadow-2xl">
+        <div class="text-center mb-6">
+            <div class="bg-emerald-500/20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="star" class="text-emerald-400 w-8 h-8 fill-emerald-400"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-white">Rate your experience</h3>
+            <p class="text-slate-400 text-sm">How did we handle your request?</p>
+        </div>
+
+        <textarea id="feedbackText" class="w-full bg-slate-950/50 border border-slate-700 rounded-2xl p-4 text-white mb-6 focus:ring-2 focus:ring-emerald-500 outline-none" rows="3" placeholder="Additional comments..."></textarea>
+
+        <div class="flex justify-center gap-4 mb-8">
+            <select id="ratingSelect" class="bg-slate-800 text-white px-4 py-2 rounded-xl border border-slate-600">
+                <option value="5">⭐⭐⭐⭐⭐ Excellent</option>
+                <option value="4">⭐⭐⭐⭐ Good</option>
+                <option value="3">⭐⭐⭐ Average</option>
+                <option value="2">⭐⭐ Poor</option>
+                <option value="1">⭐ Terrible</option>
+            </select>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+            <button onclick="closeFeedback()" class="bg-slate-800 hover:bg-slate-700 text-white font-semibold py-3 rounded-xl transition-all">Discard</button>
+            <button onclick="submitFeedback()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 rounded-xl shadow-lg shadow-emerald-500/20 transition-all">Submit Feedback</button>
+        </div>
+    </div>
 </div>
 
 <script>
-    const user = JSON.parse(localStorage.getItem('user'));
+    // Note: Kept all your logic and variable references intact
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!user) window.location.href = "login.html";
+    let selectedComplaintId = null;
 
-    if (!user) {
-        window.location.href = "login.html";
-    }
+    const titleInput = document.getElementById("title");
+    const descInput = document.getElementById("desc");
+    const fileInput = document.getElementById("file");
+    const feedbackModal = document.getElementById("feedbackModal");
 
-    // ===================== LOAD USER COMPLAINTS =====================
+    const showLoader = () => document.getElementById("loader").classList.remove("hidden");
+    const hideLoader = () => document.getElementById("loader").classList.add("hidden");
+
     function loadComplaints() {
         fetch(`http://localhost:8080/api/complaints/user/${user.id}`, {
-            headers: {
-                "Authorization": "Bearer " + user.token
-            }
+            headers: { Authorization: "Bearer " + user.token }
         })
         .then(res => res.json())
         .then(data => {
+            let pending = 0, resolved = 0;
             const table = document.getElementById("complaintTable");
             table.innerHTML = "";
 
-            let total = data.length;
-            let pending = 0;
-            let resolved = 0;
-
             data.forEach(c => {
-                if (c.status === "RESOLVED") resolved++;
-                else pending++;
-
-                let color = c.status === "RESOLVED" ? "text-green-600" : "text-red-600";
+                const isResolved = c.status === "RESOLVED";
+                isResolved ? resolved++ : pending++;
 
                 table.innerHTML += `
-                    <tr class="border-b">
-                        <td class="p-2">${c.title}</td>
-                        <td class="p-2">${c.description}</td>
-                        <td class="p-2 font-bold ${color}">${c.status}</td>
-                    </tr>
-                `;
+                <tr class="hover:bg-white/5 transition-colors group">
+                    <td class="px-6 py-4">
+                        <div class="font-bold text-white group-hover:text-indigo-400 transition-colors">${c.title}</div>
+                        <div class="text-xs text-slate-500 mt-1 line-clamp-1">${c.description}</div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase ${
+                            isResolved ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-yellow-500/10 text-yellow-400 border border-yellow-500/20"
+                        }">
+                            ${c.status}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                        ${isResolved && !c.feedback
+                            ? `<button onclick="openFeedback(${c.id})" class="text-xs bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-1.5 rounded-lg font-bold transition-all">Feedback</button>`
+                            : c.feedback ? `<span class="text-emerald-400 text-lg">✦</span>` : `<span class="text-slate-600">—</span>`}
+                    </td>
+                </tr>`;
             });
 
-            document.getElementById("totalCount").innerText = total;
+            document.getElementById("totalCount").innerText = data.length;
             document.getElementById("pendingCount").innerText = pending;
             document.getElementById("resolvedCount").innerText = resolved;
+            lucide.createIcons();
         });
     }
 
-    // ===================== SUBMIT COMPLAINT =====================
     function submitComplaint() {
-        let title = document.getElementById("title").value.trim();
-        let desc = document.getElementById("desc").value.trim();
-        let errorMsg = document.getElementById("errorMsg");
-
-        // Prevent EMPTY complaint
-        if (title.length === 0 || desc.length === 0) {
-            errorMsg.innerText = "Title & Description cannot be empty!";
+        const title = titleInput.value.trim();
+        const desc = descInput.value.trim();
+        if (!title || !desc) {
+            document.getElementById("errorMsg").innerText = "Please fill in all fields";
             return;
         }
 
-        errorMsg.innerText = "";
+        const formData = new FormData();
+        formData.append("userId", user.id);
+        formData.append("title", title);
+        formData.append("description", desc);
+        if (fileInput.files[0]) formData.append("file", fileInput.files[0]);
 
-        fetch("http://localhost:8080/api/complaints", {
+        showLoader();
+        fetch("http://localhost:8080/api/complaints/with-file", {
             method: "POST",
+            headers: { Authorization: "Bearer " + user.token },
+            body: formData
+        }).then(() => {
+            hideLoader();
+            titleInput.value = descInput.value = fileInput.value = "";
+            loadComplaints();
+        }).catch(err => {
+            hideLoader();
+            console.error(err);
+        });
+    }
+
+    function openFeedback(id) {
+        selectedComplaintId = id;
+        feedbackModal.classList.remove("hidden");
+    }
+
+    function closeFeedback() {
+        feedbackModal.classList.add("hidden");
+    }
+
+    function submitFeedback() {
+        const rating = document.getElementById("ratingSelect").value;
+        const feedbackText = document.getElementById("feedbackText").value;
+
+        fetch("http://localhost:8080/api/complaints/feedback", {
+            method: "PUT",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer " + user.token
+                Authorization: "Bearer " + user.token
             },
             body: JSON.stringify({
-                userId: user.id,
-                title: title,
-                description: desc
+                complaintId: selectedComplaintId,
+                feedback: feedbackText,
+                rating: rating
             })
-        })
-        .then(() => {
-            document.getElementById("title").value = "";
-            document.getElementById("desc").value = "";
+        }).then(() => {
+            closeFeedback();
             loadComplaints();
         });
     }
 
-    // ===================== LOGOUT =====================
     function logout() {
         localStorage.clear();
         window.location.href = "login.html";
     }
 
+    // Initialize
     loadComplaints();
+    lucide.createIcons();
 </script>
-
 </body>
 </html>

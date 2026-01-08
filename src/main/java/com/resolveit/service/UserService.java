@@ -29,6 +29,7 @@ public class UserService {
         User user = new User();
         user.setName(req.getName());
         user.setUsername(req.getUsername());
+        user.setEmail(req.getEmail());
 
         // Store hashed password instead of plain text
         user.setPassword(passwordEncoder.encode(req.getPassword()));

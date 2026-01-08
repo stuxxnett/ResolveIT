@@ -2,9 +2,12 @@ package com.resolveit.controller;
 
 import com.resolveit.dto.AssignDepartmentRequest;
 import com.resolveit.dto.ComplaintRequest;
+import com.resolveit.dto.FeedbackRequest;
 import com.resolveit.model.Complaint;
 import com.resolveit.service.ComplaintService;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -20,14 +23,39 @@ public class ComplaintController {
     }
 
     // ================= USER APIs =================
+    @PutMapping("/feedback")
+    public Complaint submitFeedback(@RequestBody FeedbackRequest request) {
+        return complaintService.addFeedback(
+                request.getComplaintId(),
+                request.getFeedback(),
+                request.getRating()
+        );
+    }
 
-    // User submits a complaint
     @PostMapping
     public Complaint submitComplaint(@RequestBody ComplaintRequest request) {
         return complaintService.createComplaint(request);
     }
 
-    // User views their complaints
+    @PostMapping(
+            value = "/with-file",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    public Complaint submitComplaintWithFile(
+            @RequestParam("userId") Long userId,
+            @RequestParam("title") String title,
+            @RequestParam("description") String description,
+            @RequestPart(value = "file", required = false) MultipartFile file
+    ) throws Exception {
+
+        ComplaintRequest req = new ComplaintRequest();
+        req.setUserId(userId);
+        req.setTitle(title);
+        req.setDescription(description);
+
+        return complaintService.createComplaintWithFile(req, file);
+    }
+
     @GetMapping("/user/{userId}")
     public List<Complaint> getUserComplaints(@PathVariable Long userId) {
         return complaintService.getUserComplaints(userId);
@@ -35,25 +63,21 @@ public class ComplaintController {
 
     // ================= ADMIN APIs =================
 
-    // Admin views ALL complaints
     @GetMapping
     public List<Complaint> getAllComplaints() {
         return complaintService.getAllComplaints();
     }
 
-    // Admin assigns department to complaint
-    @PutMapping("/{complaintId}/assign")
-    public Complaint assignDepartment(@PathVariable Long complaintId,
-                                      @RequestBody AssignDepartmentRequest request) {
-        return complaintService.assignDepartment(complaintId, request.getDepartmentId());
+    @PutMapping("/assign")
+    public void assignDepartment(@RequestBody AssignDepartmentRequest request) {
+        complaintService.assignDepartment(
+                request.getComplaintId(),
+                request.getDepartmentId()
+        );
     }
 
-    // Admin resolves a complaint
     @PutMapping("/{complaintId}/resolve")
     public Complaint resolveComplaint(@PathVariable Long complaintId) {
         return complaintService.resolveComplaint(complaintId);
     }
-
-
-
 }

@@ -1,11 +1,11 @@
 package com.resolveit.controller;
 
-import com.resolveit.dto.LoginRequest;
 import com.resolveit.dto.UserRegisterRequest;
-import com.resolveit.dto.UserResponse;
 import com.resolveit.model.User;
 import com.resolveit.service.AuthService;
 import com.resolveit.service.UserService;
+import com.resolveit.dto.LoginRequest;
+import com.resolveit.dto.UserResponse;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -38,6 +38,7 @@ public class AuthController {
                 saved.getId(),
                 saved.getName(),
                 saved.getUsername(),
+                saved.getEmail(),
                 saved.getRole(),
                 null        // token = null because signup does NOT auto-login
         );
